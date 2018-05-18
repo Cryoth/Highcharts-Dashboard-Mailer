@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/Cryoth/Highcharts-Dashboard-Mailer/issues"
   },
-  "homepage": "https://github.com/Cryoth/Highcharts-Dashboard-Mailer#readme"
+  "homepage": "https://github.com/Cryoth/Highcharts-Dashboard-Mailer#readme",
+  "dependencies": {
+    "mysql": "^2.15.0"
+  }
 }
