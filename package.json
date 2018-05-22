@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Cryoth/Highcharts-Dashboard-Mailer#readme",
   "dependencies": {
-    "mysql": "^2.15.0"
+    "mysql": "^2.15.0",
+    "php-unserialize": "0.0.1"
   }
 }
