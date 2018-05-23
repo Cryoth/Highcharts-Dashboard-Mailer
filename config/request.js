@@ -50,11 +50,16 @@ module.exports = {
 
 	},
 
-	getSeriesData: function(params){
-		database = db(params);
-		database.query('', [chartId], function(err, result){
-			if (err) throw err;
-			return result;
+	getSeriesData: function(params, monetaire, frequence, periode, data){
+
+		return new Promise(function(resolve, reject){
+			database = db(params);
+			database.query('', data, function(err, result){
+				if (err) throw err;
+				return result;
+			});
+
+			database.end();
 		});
 	},
 }

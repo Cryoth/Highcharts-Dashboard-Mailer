@@ -8,7 +8,7 @@ const config = require('./config.js')[env].Servers;
 const mailer = require('./lib/mailer.js');
 
 // Convertisseur au format JSON exploitable par Highcharts
-const formatJSON = require('./lib/json-formatter.js');
+const FormatJSON = require('./lib/json-formatter.js');
 
 // Serializer pour données depuis php
 const PHPUnserialize = require('php-unserialize');
@@ -23,7 +23,8 @@ if(env == 'development'){
 	console.log('\n===============  MODE DEVELOPMENT  ===============\n');
 }
 
-
+var json = new FormatJSON();
+console.log(JSON.stringify(json));
 
 // Parcours les BDD de Check Anywhere
 config.CheckAnywhere.forEach(function(db, index){
@@ -45,7 +46,13 @@ config.CheckAnywhere.forEach(function(db, index){
 
   				series.forEach(function(serie){
 
-  					valeur = PHPUnserialize.unserialize(serie.Valeurs);
+  					valeurs = PHPUnserialize.unserialize(serie.Valeurs);
+  					dataToTreat = [];
+  					delete valeurs[0][0];
+  					delete valeurs[0][1];
+  					console.log(valeurs[0][2]);
+
+  					//DB.getSeriesData(db, )
 
   				});
 
