@@ -4,7 +4,7 @@
   "description": "Outil d'envoi de tableau de bord généré sous highcharts",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -17,8 +17,17 @@
   },
   "homepage": "https://github.com/Cryoth/Highcharts-Dashboard-Mailer#readme",
   "dependencies": {
+    "cron": "^1.3.0",
+    "express": "^4.16.3",
+    "highcharts-export-server": "^2.0.13",
     "moment": "^2.22.1",
     "mysql": "^2.15.0",
-    "php-unserialize": "0.0.1"
+    "nodemailer": "^4.6.5",
+    "nodemailer-smtp-transport": "^2.7.4",
+    "php-unserialize": "0.0.1",
+    "xoauth2": "^1.2.0"
+  },
+  "devDependencies": {
+    "jest": "^23.0.0"
   }
 }
