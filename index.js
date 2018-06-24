@@ -15,27 +15,39 @@ const chartProvider = require('./lib/chartProvider');
 // Tâches cron
 const CronJob = require('cron').CronJob;
 
+// Fonctions de vérification de l'état du serveur
+const verify = require('./lib/checkUp')
+const log = require('./lib/logs.js').global;
+
 
 // Annonce le mode développement si celui-ci est de rigueur
 if(env == 'development'){
 	console.log('\n===============  MODE DEVELOPMENT  ===============\n');
-}else{
-	console.log('\n===============  MODE PRODUCTION  ===============\n');
 }
-
 
 // Mets à disposition les fichiers statics
 
-console.log("\nMise à disposition des fichiers statics ...");
+log.info("\nMise à disposition des fichiers statics ...");
 
 app.use(express.static(__dirname + '/tmpdir'));
 app.listen(3000);
 
-console.log('\x1b[32m%s\x1b[0m', 'OK - Fichiers statics accessibles.\n');
+log.info('OK - Fichiers statics accessibles.');
 
+log.info("Vérification de l'état du réseau ...");
 
-console.log("\nCIP Anywhere : Lancement de la génération des graphiques ...\n");
-chartProvider.cipanywhere(config.CipAnywhere);
+verify.internet();
+verify.serveurs(config.CheckAnywhere);
+verify.serveurs(config.CipAnywhere);
+
+log.info("CIP Anywhere : Lancement de la génération des graphiques ...");
+chartProvider.cipanywhere(config.CipAnywhere).then(function(){
+
+	log.info("Check Anywhere : Lancement de la génération des graphiques ...");
+	chartProvider.checkanywhere(config.CheckAnywhere);
+
+});
+
 
 // Lance la tâche cron pour les lundi à 3h du matin
 new CronJob('00 00 03 * * 1', function() {

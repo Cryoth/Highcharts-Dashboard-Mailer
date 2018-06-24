@@ -1,4 +1,5 @@
 const db = require('./db.js');
+const log = require('../lib/logs.js').chart;
 var moment = require('moment');
 
 module.exports = {
@@ -72,53 +73,101 @@ module.exports = {
 
 		},
 
-		getSeriesData: function(params, monetaire, frequence, periode, data){
+		getSeriesData: function(params, monetaire, frequence, periode, data, idSerie){
 
 			return new Promise(function(resolve, reject){
 				database = db(params);
 
 				var dateStart = moment().startOf('isoweek').subtract(periode, 'week').format("YYYY-MM-DD"),
-					dateEnd = moment().format("YYYY-MM-DD");
+					dateEnd = moment().format("YYYY-MM-DD"),
+					query = "",
+					parameters = [];
 
-				var query = "SELECT Valeur FROM Valeur "
-	                      + "WHERE Date >= ? "
-	                      + "AND Date <= ? "
-	                      + "AND Periodicite = 2 "
-	                      + "AND Donnees_id = ?"
-	                      + "ORDER BY Date";
-				database.query(query, [dateStart, dateEnd, data], function(err, result, fields){
-					array = result.map(function(obj){
-						return obj.Valeur;
-					})
+				database.query("SELECT IF(EXISTS(SELECT Commentaire FROM Commentaire WHERE id_Identificateur = ?), 1, 0) AS value", [idSerie], function(err, exist, fields){
+					if(exist[0].value == 1){
 
-					if(array.length < periode){
-						array = new Array((periode - array.length) + 1).join('0').split('').map(parseFloat).concat(array);
+						if(frequence == 1){
+							query = "SELECT (data.val / freq.val) AS Valeur, data.Date AS Date, IF(data.Date = comment.Date, comment.Commentaire, '') AS commentaire "
+								  + "FROM "
+								  + "(SELECT Valeur AS val, Date FROM Valeur WHERE Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id = ? ORDER BY Date) data, "
+								  + "(SELECT SUM(Valeur) AS val FROM Valeur, Donnees WHERE Donnees.id = Valeur.Donnees_id AND Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id IN (SELECT id FROM Donnees WHERE id IN (SELECT idDenominateur FROM Donnee_Liaison WHERE idNominateur = ?)) GROUP BY Date ORDER BY Date) freq ,"
+								  + "(SELECT Date, Commentaire FROM Commentaire WHERE id_Identificateur = ? ORDER BY Date) comment";
+							parameters = [dateStart, dateEnd, data, dateStart, dateEnd, data, idSerie];
+						}else{
+							query = "SELECT data.Valeur AS Valeur, data.Date AS Date, IF(data.Date = comment.Date, comment.Commentaire, '') AS commentaire "
+								  + "FROM "
+			                      + "(SELECT Valeur, Date FROM Valeur WHERE Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id = ? ORDER BY Date) data, "
+			                      + "(SELECT Date, Commentaire FROM Commentaire WHERE id_Identificateur = ? ORDER BY Date) comment";
+			                parameters = [dateStart, dateEnd, data, idSerie];
+						}
+						
+						database.query(query, parameters, function(err, result, fields){
+
+							var arrayData = []
+								arrayComment = [];
+
+							if(typeof result !== 'undefined' && result){
+
+								arrayData = result.map(function(obj){
+									return obj.Valeur;
+								})
+
+								arrayComment = result.map(function(obj){
+									return {date: obj.Date, text: obj.commentaire, valeur: obj.Valeur};
+								});
+							}
+
+							if(arrayData.length < periode){
+								arrayData = new Array((periode - arrayData.length) + 1).join('0').split('').map(parseFloat).concat(arrayData);
+							}
+
+							if (err)
+								reject(err);
+							else
+								resolve({data: arrayData, commentaires: arrayComment});
+
+							database.end();
+						});
+
+					}else{
+
+						if(frequence == 1){
+							query = "SELECT (data.val / freq.val) AS Valeur "
+								  + "FROM "
+								  + "(SELECT Valeur AS val FROM Valeur WHERE Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id = ? ORDER BY Date) data, "
+								  + "(SELECT SUM(Valeur) AS val FROM Valeur, Donnees WHERE Donnees.id = Valeur.Donnees_id AND Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id IN (SELECT id FROM Donnees WHERE id IN (SELECT idDenominateur FROM Donnee_Liaison WHERE idNominateur = ?)) GROUP BY Date ORDER BY Date) freq";
+							parameters = [dateStart, dateEnd, data, dateStart, dateEnd, data];
+						}else{
+							query = "SELECT Valeur FROM Valeur WHERE Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id = ? ORDER BY Date";
+			                parameters = [dateStart, dateEnd, data];
+						}
+						
+						database.query(query, parameters, function(err, result, fields){
+
+							var arrayData = [];
+
+							if(typeof result !== 'undefined' && result){
+								arrayData = result.map(function(obj){
+									return obj.Valeur;
+								})
+							}
+
+							if(arrayData.length < periode){
+								arrayData = new Array((periode - arrayData.length) + 1).join('0').split('').map(parseFloat).concat(arrayData);
+							}
+
+							if (err)
+								reject(err);
+							else
+								resolve({data: arrayData, commentaires: null});
+
+							database.end();
+						});
 					}
 
-					if (err)
-						reject(err);
-					else
-						resolve(array);
-				});
+					});
 
-				database.end();
 			});
-		},
-
-		getSerieComment: function(params, chartId){
-
-			return new Promise(function(resolve, reject){
-				database = db(params);
-				database.query('SELECT * FROM Identificateur_Modele WHERE Modele_id = ?', [chartId], function(err, result) {
-			      if (err) 
-			      	return reject(err);
-			      else
-			      	resolve(result);
-			    });
-
-			    database.end();
-			});
-
 		},
 	},
 
@@ -155,25 +204,57 @@ module.exports = {
 
 		},
 
+		getChartsFromClient: function(params, clientId){
+
+			return new Promise(function(resolve, reject){
+
+				database = db(params);
+
+				database.query('SELECT * FROM iaaservices_config_indicateurs WHERE idClient = ?', [clientId], function(err, result) {
+			      if (err) 
+			      	return reject(err);
+			      else
+			      	resolve(result);
+			    });
+			    
+			    database.end();
+			});
+
+		},
+
 		getChartData: function(params, id){
 
 			return new Promise(function(resolve, reject){
 				database = db(params);
 				dateStart = moment().startOf('isoweek').subtract(52, 'week').format("YYYY-MM-DD");
 
-				var query = "SELECT valeur FROM indicateurs_calcules "
+				var query = "SELECT valeur, commentaire, date_debut_semaine FROM indicateurs_calcules "
 						  + "WHERE idIndicateur = ? "
 						  + "AND date_debut_semaine >= ? "
 						  + "ORDER BY date_debut_semaine";
 				database.query(query, [id, dateStart], function(err, result){
-					var array = result.map(function(obj){
-						return obj.valeur;
-					});
+
+					var arrayData = []
+						arrayComment = [];
+
+					if(typeof result !== 'undefined' && result){
+						arrayData = result.map(function(obj){
+							return obj.valeur;
+						});
+
+						arrayComment = result.map(function(obj){
+							return {date: obj.date_debut_semaine, text: obj.commentaire, valeur: obj.valeur};
+						});
+					}
+
+					if(arrayData.length < 52){
+						arrayData = new Array((52 - arrayData.length) + 1).join('0').split('').map(parseFloat).concat(arrayData);
+					}
 
 					if (err)
 						reject(err);
 					else
-						resolve(array);
+						resolve({data: arrayData, commentaires: arrayComment});
 				});
 
 				database.end();
