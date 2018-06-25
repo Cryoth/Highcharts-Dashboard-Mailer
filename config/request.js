@@ -11,10 +11,12 @@ module.exports = {
 			return new Promise(function(resolve, reject){
 				database = db(params);
 				database.query('SELECT id, Login, Email FROM Client WHERE SendDashboard = 1', function(err, result) {
-			      if (err) 
+			      if (err){
+			      	log.error(err);
 			      	return reject(err);
-			      else
+			      }else{
 			      	resolve(result);
+			      }
 			    });
 
 			    database.end();
@@ -27,10 +29,12 @@ module.exports = {
 			return new Promise(function(resolve, reject){
 				database = db(params);
 				database.query('SELECT DISTINCT(`idModele`) AS Id, Nom, FormeGraph, Periode  FROM `Modele` INNER JOIN Client_Modele ON Modele.id = Client_Modele.idModele INNER JOIN Client ON Client_Modele.idClient = Client.id WHERE SendDashboard = 1', function(err, result) {
-			      if (err) 
+			      if (err) {
+			      	log.error(err);
 			      	return reject(err);
-			      else
+			      }else{
 			      	resolve(result);
+			      }
 			    });
 
 			    database.end();
@@ -43,13 +47,15 @@ module.exports = {
 			return new Promise(function(resolve, reject){
 				database = db(params);
 				database.query('SELECT DISTINCT(`idModele`) AS Id, Nom FROM `Modele` INNER JOIN Client_Modele ON Modele.id = Client_Modele.idModele INNER JOIN Client ON Client_Modele.idClient = Client.id WHERE Client_Modele.Actif = 1 AND Client.id = ?', [idClient], function(err, result) {
-			      if (err) 
+			      if (err) {
+			      	log.error(err);
 			      	return reject(err);
-			      else
+			      }else{
 			      	array = result.map(function(obj){
 						return obj.Id;
 					})
 			      	resolve(array);
+			      }
 			    });
 
 			    database.end();
@@ -62,10 +68,12 @@ module.exports = {
 			return new Promise(function(resolve, reject){
 				database = db(params);
 				database.query('SELECT * FROM Identificateur_Modele WHERE Modele_id = ?', [chartId], function(err, result) {
-			      if (err) 
+			      if (err) {
+			      	log.error(err);
 			      	return reject(err);
-			      else
+			      }else{
 			      	resolve(result);
+			      }
 			    });
 
 			    database.end();
@@ -121,10 +129,12 @@ module.exports = {
 								arrayData = new Array((periode - arrayData.length) + 1).join('0').split('').map(parseFloat).concat(arrayData);
 							}
 
-							if (err)
+							if (err){
+								log.error(err);
 								reject(err);
-							else
+							}else{
 								resolve({data: arrayData, commentaires: arrayComment});
+							}
 
 							database.end();
 						});
@@ -156,10 +166,12 @@ module.exports = {
 								arrayData = new Array((periode - arrayData.length) + 1).join('0').split('').map(parseFloat).concat(arrayData);
 							}
 
-							if (err)
+							if (err){
+								log.error(err);
 								reject(err);
-							else
+							}else{
 								resolve({data: arrayData, commentaires: null});
+							}
 
 							database.end();
 						});
@@ -177,10 +189,12 @@ module.exports = {
 			return new Promise(function(resolve, reject){
 				database = db(params);
 				database.query('SELECT idClient, login, email FROM iaaservices_clients WHERE subscriptionNewDashboard = 1', function(err, result) {
-			      if (err) 
+			      if (err) {
+			      	log.error(err);
 			      	return reject(err);
-			      else
+			      }else{
 			      	resolve(result);
+			      }
 			    });
 
 			    database.end();
@@ -193,10 +207,12 @@ module.exports = {
 			return new Promise(function(resolve, reject){
 				database = db(params);
 				database.query('SELECT * FROM indicateur', function(err, result) {
-			      if (err) 
+			      if (err) {
+			      	log.error(err);
 			      	return reject(err);
-			      else
+			      }else{
 			      	resolve(result);
+			      }
 			    });
 
 			    database.end();
@@ -211,10 +227,12 @@ module.exports = {
 				database = db(params);
 
 				database.query('SELECT * FROM iaaservices_config_indicateurs WHERE idClient = ?', [clientId], function(err, result) {
-			      if (err) 
+			      if (err) {
+			      	log.error(err);
 			      	return reject(err);
-			      else
+			      }else{
 			      	resolve(result);
+			      }
 			    });
 			    
 			    database.end();
@@ -251,10 +269,12 @@ module.exports = {
 						arrayData = new Array((52 - arrayData.length) + 1).join('0').split('').map(parseFloat).concat(arrayData);
 					}
 
-					if (err)
+					if (err){
+						log.error(err);
 						reject(err);
-					else
+					}else{
 						resolve({data: arrayData, commentaires: arrayComment});
+					}
 				});
 
 				database.end();

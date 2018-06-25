@@ -62,4 +62,7 @@ typings/
 # config files
 config.js
 
+#temporary files
+tmpdir/
+
 # End of https://www.gitignore.io/api/node

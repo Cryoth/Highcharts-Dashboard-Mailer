@@ -19,43 +19,64 @@ const CronJob = require('cron').CronJob;
 const verify = require('./lib/checkUp')
 const log = require('./lib/logs.js').global;
 
-
-// Annonce le mode développement si celui-ci est de rigueur
+console.log("test");
+// Lancement de la génération au démarrage de l'Appli en mode développement
 if(env == 'development'){
-	console.log('\n===============  MODE DEVELOPMENT  ===============\n');
-}
+	log.info('===============  MODE DEVELOPMENT  ===============\n');
 
-// Mets à disposition les fichiers statics
+	// Verifie la présence de tous les dossiers tmp
+	verify.dossiers(config);
 
-log.info("\nMise à disposition des fichiers statics ...");
+	// Mets à disposition les fichiers statics
+	log.info("Mise à disposition des fichiers statics ...");
 
-app.use(express.static(__dirname + '/tmpdir'));
-app.listen(3000);
+	app.use(express.static(__dirname + '/tmpdir'));
+	app.listen(3000);
 
-log.info('OK - Fichiers statics accessibles.');
+	log.info('OK - Fichiers statics accessibles.');
 
-log.info("Vérification de l'état du réseau ...");
+	log.info("Vérification de l'état du réseau ...");
 
-verify.internet();
-verify.serveurs(config.CheckAnywhere);
-verify.serveurs(config.CipAnywhere);
+	verify.internet();
+	verify.serveurs(config.CheckAnywhere);
+	verify.serveurs(config.CipAnywhere);
 
-log.info("CIP Anywhere : Lancement de la génération des graphiques ...");
-chartProvider.cipanywhere(config.CipAnywhere).then(function(){
+	log.info("CIP Anywhere : Lancement de la génération des graphiques ...");
+	chartProvider.cipanywhere(config.CipAnywhere).then(function(){
 
 	log.info("Check Anywhere : Lancement de la génération des graphiques ...");
 	chartProvider.checkanywhere(config.CheckAnywhere);
 
-});
+	});
 
+}
 
 // Lance la tâche cron pour les lundi à 3h du matin
 new CronJob('00 00 03 * * 1', function() {
 
+	// Verifie la présence de tous les dossiers tmp
+	verify.dossiers(config);
+
+	// Mets à disposition les fichiers statics
+	log.info("Mise à disposition des fichiers statics ...");
+
+	app.use(express.static(__dirname + '/tmpdir'));
+	app.listen(3000);
+
+	log.info('OK - Fichiers statics accessibles.');
+
+	log.info("Vérification de l'état du réseau ...");
+
+	verify.internet();
+	verify.serveurs(config.CheckAnywhere);
+	verify.serveurs(config.CipAnywhere);
+
+	console.log("\nCIP Anywhere : Lancement de la génération des graphiques ...\n");
+	chartProvider.cipanywhere(config.CipAnywhere).then(function(){
+
 	console.log("\nCheck Anywhere : Lancement de la génération des graphiques ...\n");
 	chartProvider.checkanywhere(config.CheckAnywhere);
 
-	console.log("\nCIP Anywhere : Lancement de la génération des graphiques ...\n");
-	chartProvider.cipanywhere(config.CipAnywhere);
+	});
 
 }, null, true, 'Europe/Paris');
