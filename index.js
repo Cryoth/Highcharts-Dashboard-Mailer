@@ -46,6 +46,27 @@ if(env == 'development'){
 
 }
 
+if(env == 'production'){
+	console.log('===============  MODE PRODUCTION  ===============\n');
+
+	// Verifie la présence de tous les dossiers tmp
+	verify.dossiers(config);
+
+	// Mets à disposition les fichiers statics
+	log.info("Mise à disposition des fichiers statics ...");
+
+	app.use(express.static(__dirname + '/tmpdir'));
+	app.listen(3000);
+
+	log.info('OK - Fichiers statics accessibles.');
+
+	log.info("Vérification de l'état du réseau ...");
+
+	verify.internet();
+	verify.serveurs(config.CheckAnywhere);
+	verify.serveurs(config.CipAnywhere);
+}
+
 // Lance la tâche cron pour les lundi à 3h du matin
 new CronJob('00 00 03 * * 1', function() {
 
@@ -68,7 +89,7 @@ new CronJob('00 00 03 * * 1', function() {
 
 	log.info("CIP Anywhere : Lancement de la génération des graphiques ...");
 	eachCip(0);
-	
+
 }, null, true, 'Europe/Paris');
 
 function eachCip(x){
