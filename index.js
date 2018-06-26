@@ -19,7 +19,7 @@ const CronJob = require('cron').CronJob;
 const verify = require('./lib/checkUp')
 const log = require('./lib/logs.js').global;
 
-console.log("test");
+
 // Lancement de la génération au démarrage de l'Appli en mode développement
 if(env == 'development'){
 	log.info('===============  MODE DEVELOPMENT  ===============\n');
@@ -42,12 +42,7 @@ if(env == 'development'){
 	verify.serveurs(config.CipAnywhere);
 
 	log.info("CIP Anywhere : Lancement de la génération des graphiques ...");
-	chartProvider.cipanywhere(config.CipAnywhere).then(function(){
-
-	log.info("Check Anywhere : Lancement de la génération des graphiques ...");
-	chartProvider.checkanywhere(config.CheckAnywhere);
-
-	});
+	eachCip(0);
 
 }
 
@@ -71,12 +66,27 @@ new CronJob('00 00 03 * * 1', function() {
 	verify.serveurs(config.CheckAnywhere);
 	verify.serveurs(config.CipAnywhere);
 
-	console.log("\nCIP Anywhere : Lancement de la génération des graphiques ...\n");
-	chartProvider.cipanywhere(config.CipAnywhere).then(function(){
-
-	console.log("\nCheck Anywhere : Lancement de la génération des graphiques ...\n");
-	chartProvider.checkanywhere(config.CheckAnywhere);
-
-	});
-
+	log.info("CIP Anywhere : Lancement de la génération des graphiques ...");
+	eachCip(0);
+	
 }, null, true, 'Europe/Paris');
+
+function eachCip(x){
+    chartProvider.cipanywhere(config.CipAnywhere[x]).then(function(){
+    	if( x < config.CipAnywhere.length - 1 ) {
+    		eachCip(x+1);
+    	}else{
+    		log.info("Check Anywhere : Lancement de la génération des graphiques ...");
+			eachCheck(0);
+    	}
+    	
+    });
+};
+
+function eachCheck(x){
+    chartProvider.checkanywhere(config.CheckAnywhere[x]).then(function(){
+    	if( x < config.CheckAnywhere.length - 1 ) {
+    		eachCheck(x+1);
+    	}
+    })
+};
