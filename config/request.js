@@ -10,7 +10,7 @@ module.exports = {
 			
 			return new Promise(function(resolve, reject){
 				database = db(params);
-				database.query('SELECT id, Login, Email FROM Client WHERE SendDashboard = 1', function(err, result) {
+				database.query("SELECT id, Login, Email FROM Client WHERE SendDashboard = 1 AND Email <> '' ", function(err, result) {
 			      if (err){
 			      	log.error(err);
 			      	return reject(err);
@@ -188,7 +188,7 @@ module.exports = {
 			
 			return new Promise(function(resolve, reject){
 				database = db(params);
-				database.query('SELECT idClient, login, email FROM iaaservices_clients WHERE subscriptionNewDashboard = 1', function(err, result) {
+				database.query("SELECT idClient, login, email FROM iaaservices_clients WHERE subscriptionNewDashboard = 1 AND email <> ''", function(err, result) {
 			      if (err) {
 			      	log.error(err);
 			      	return reject(err);

@@ -20,6 +20,7 @@ const verify = require('./lib/checkUp')
 const log = require('./lib/logs.js').global;
 
 
+
 // Lancement de la génération au démarrage de l'Appli en mode développement
 if(env == 'development'){
 	log.info('===============  MODE DEVELOPMENT  ===============\n');
