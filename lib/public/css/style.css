@@ -1,0 +1,22 @@
+#cardloggin{
+	margin-top: 12%;
+}
+
+.card-gallery{
+	margin-top : 4%;
+}
+
+.card-body{
+	width: 100%;
+    overflow: auto;
+    white-space:nowrap;
+}
+
+.card-body img{
+	width: 20%;
+	display: inline-block;
+}
+
+footer{
+	margin-top : 5%;
+}

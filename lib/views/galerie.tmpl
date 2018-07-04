@@ -1,0 +1,45 @@
+<%= include('header') %>
+
+    <main role="main" class="container">
+      <%for (server of list.Check){ %>
+
+      	<div class="card card-gallery">
+		  <div class="card-header text-center">
+		    CheckAnywhere <%= server %>
+		  </div>
+		  <div class="card-body text-center">
+		  	<% if(list.Check[server].length == 0){ %>
+		  		<div>Aucun graphique pour <%= server %></div>
+		  	<% } %>
+		    <% for(img of list.Check[server]){ %>
+
+		    	<img src="<%= img %>" />
+
+		    <% } %>
+		  </div>
+		</div>
+
+      <% } %>
+
+      <%for (server of list.Cip){ %>
+
+      	<div class="card card-gallery">
+		  <div class="card-header text-center">
+		    CIP Anywhere <%= server %>
+		  </div>
+		  <div class="card-body text-center">
+		  	<% if(list.Cip[server].length == 0){ %>
+		  		<div>Aucun graphique pour <%= server %></div>
+		  	<% } %>
+		    <% for(img of list.Cip[server]){ %>
+
+		    	<img src="<%= img %>" />
+
+		    <% } %>
+		  </div>
+		</div>
+
+      <% } %>
+    </main>
+
+<%= include('footer') %>

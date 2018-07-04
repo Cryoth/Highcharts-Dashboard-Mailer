@@ -5,9 +5,8 @@ const env = process.env.NODE_ENV || 'development';
 // Récupère les identifiants serveurs depuis config.js
 const config = require('./config.js')[env].Servers;
 
-// Framework web express
-var express = require('express');
-var app = express();
+// Module pour serveur web
+const server = require('./lib/web-server');
 
 // Module de création des graphiques selon 
 const chartProvider = require('./lib/chartProvider');
@@ -25,25 +24,17 @@ const log = require('./lib/logs.js').global;
 if(env == 'development'){
 	log.info('===============  MODE DEVELOPMENT  ===============\n');
 
+	// Lancement du serveur web
+	server.launch(config);
+
 	// Verifie la présence de tous les dossiers tmp
-	verify.dossiers(config);
+	// verify.dossiers(config);
 
-	// Mets à disposition les fichiers statics
-	log.info("Mise à disposition des fichiers statics ...");
+	// log.info("Vérification de l'état du réseau ...");
 
-	app.use(express.static(__dirname + '/tmpdir'));
-	app.listen(3000);
-
-	log.info('OK - Fichiers statics accessibles.');
-
-	log.info("Vérification de l'état du réseau ...");
-
-	verify.internet();
-	verify.serveurs(config.CheckAnywhere);
-	verify.serveurs(config.CipAnywhere);
-
-	log.info("CIP Anywhere : Lancement de la génération des graphiques ...");
-	eachCip(0);
+	// verify.internet();
+	// verify.serveurs(config.CheckAnywhere);
+	// verify.serveurs(config.CipAnywhere);
 
 }
 
