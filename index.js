@@ -25,32 +25,27 @@ if(env == 'development'){
 	log.info('===============  MODE DEVELOPMENT  ===============\n');
 
 	// Lancement du serveur web
-	server.launch(config);
+	// server.launch(config);
 
-	// Verifie la présence de tous les dossiers tmp
-	// verify.dossiers(config);
+	//Verifie la présence de tous les dossiers tmp
+	verify.dossiers(config);
 
-	// log.info("Vérification de l'état du réseau ...");
+	log.info("Vérification de l'état du réseau ...");
 
-	// verify.internet();
-	// verify.serveurs(config.CheckAnywhere);
-	// verify.serveurs(config.CipAnywhere);
+	verify.internet();
+	verify.serveurs(config.CheckAnywhere);
+	verify.serveurs(config.CipAnywhere);
 
 }
 
 if(env == 'production'){
 	console.log('===============  MODE PRODUCTION  ===============\n');
 
+	// Lancement du serveur web
+	server.launch(config);
+
 	// Verifie la présence de tous les dossiers tmp
 	verify.dossiers(config);
-
-	// Mets à disposition les fichiers statics
-	log.info("Mise à disposition des fichiers statics ...");
-
-	app.use(express.static(__dirname + '/tmpdir'));
-	app.listen(3000);
-
-	log.info('OK - Fichiers statics accessibles.');
 
 	log.info("Vérification de l'état du réseau ...");
 
@@ -65,18 +60,9 @@ new CronJob('00 00 03 * * 1', function() {
 	// Verifie la présence de tous les dossiers tmp
 	verify.dossiers(config);
 
-	// Mets à disposition les fichiers statics
-	log.info("Mise à disposition des fichiers statics ...");
-
-	app.use(express.static(__dirname + '/tmpdir'));
-	app.listen(3000);
-
-	log.info('OK - Fichiers statics accessibles.');
-
 	log.info("Vérification de l'état du réseau ...");
 
 	verify.internet();
-	verify.serveurs(config.CheckAnywhere);
 	verify.serveurs(config.CipAnywhere);
 
 	log.info("CIP Anywhere : Lancement de la génération des graphiques ...");
@@ -84,13 +70,26 @@ new CronJob('00 00 03 * * 1', function() {
 
 }, null, true, 'Europe/Paris');
 
+// Lance la tâche cron pour les lundi à 3h30 du matin
+new CronJob('00 30 03 * * 1', function() {
+
+	// Verifie la présence de tous les dossiers tmp
+	verify.dossiers(config);
+
+	log.info("Vérification de l'état du réseau ...");
+
+	verify.internet();
+	verify.serveurs(config.CheckAnywhere);
+
+	log.info("Check Anywhere : Lancement de la génération des graphiques ...");
+	eachCheck(0);
+
+}, null, true, 'Europe/Paris');
+
 function eachCip(x){
     chartProvider.cipanywhere(config.CipAnywhere[x]).then(function(){
     	if( x < config.CipAnywhere.length - 1 ) {
     		eachCip(x+1);
-    	}else{
-    		log.info("Check Anywhere : Lancement de la génération des graphiques ...");
-			eachCheck(0);
     	}
     	
     });

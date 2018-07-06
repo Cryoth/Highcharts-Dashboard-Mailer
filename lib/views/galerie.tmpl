@@ -1,45 +1,73 @@
 <%= include('header') %>
 
     <main role="main" class="container">
-      <%for (server of list.Check){ %>
-
       	<div class="card card-gallery">
 		  <div class="card-header text-center">
-		    CheckAnywhere <%= server %>
+		  	<ul class="nav nav-pills card-header-pills">
+			  	<%for (server of list.Check){ %>
+				    <li class="nav-item">
+				    	<% if(server == list.Check[0]){ %>
+				        	<a class="nav-link active" data-toggle="tab" href="#<%= server %>"><%= server %></a>
+				        <% }else{ %>
+				        	<a class="nav-link" data-toggle="tab" href="#<%= server %>"><%= server %></a>
+				        <% } %>
+				    </li>
+			    <% } %>
+			</ul>
 		  </div>
-		  <div class="card-body text-center">
-		  	<% if(list.Check[server].length == 0){ %>
-		  		<div>Aucun graphique pour <%= server %></div>
+		  <div class="tab-content card-body text-center">
+		  <%for (server of list.Check){ %>
+		  	<% if(server == list.Check[0]){ %>
+		  	  <div id="<%= server %>" class="tab-pane active">
+		  	<% }else{ %>
+		  	  <div id="<%= server %>" class="tab-pane">
 		  	<% } %>
-		    <% for(img of list.Check[server]){ %>
+			  	<% if(list.Check[server].length == 0){ %>
+			  		<div>Aucun graphique pour <%= server %></div>
+			  	<% } %>
+			    <% for(img of list.Check[server]){ %>
 
-		    	<img src="<%= img %>" />
-
-		    <% } %>
+			    	<img src="<%= img %>" />
+			    <% } %>
+			  </div>
+		  <% } %>
 		  </div>
 		</div>
 
-      <% } %>
 
-      <%for (server of list.Cip){ %>
 
-      	<div class="card card-gallery">
+      <div class="card card-gallery">
 		  <div class="card-header text-center">
-		    CIP Anywhere <%= server %>
+		  	<ul class="nav nav-pills card-header-pills">
+			  	<%for (server of list.Cip){ %>
+				    <li class="nav-item">
+				    	<% if(server == list.Cip[0]){ %>
+				        	<a class="nav-link active" data-toggle="tab" href="#<%= server %>"><%= server %></a>
+				        <% }else{ %>
+				        	<a class="nav-link" data-toggle="tab" href="#<%= server %>"><%= server %></a>
+				        <% } %>
+				    </li>
+			    <% } %>
+			</ul>
 		  </div>
-		  <div class="card-body text-center">
-		  	<% if(list.Cip[server].length == 0){ %>
-		  		<div>Aucun graphique pour <%= server %></div>
+		  <div class="tab-content card-body text-center">
+		  <%for (server of list.Cip){ %>
+		  	<% if(server == list.Cip[0]){ %>
+		  	  <div id="<%= server %>" class="tab-pane active">
+		  	<% }else{ %>
+		  	  <div id="<%= server %>" class="tab-pane">
 		  	<% } %>
-		    <% for(img of list.Cip[server]){ %>
+			  	<% if(list.Cip[server].length == 0){ %>
+			  		<div>Aucun graphique pour <%= server %></div>
+			  	<% } %>
+			    <% for(img of list.Cip[server]){ %>
 
-		    	<img src="<%= img %>" />
-
-		    <% } %>
+			    	<img src="<%= img %>" />
+			    <% } %>
+			  </div>
+		  <% } %>
 		  </div>
 		</div>
-
-      <% } %>
     </main>
 
 <%= include('footer') %>
