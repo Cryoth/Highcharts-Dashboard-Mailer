@@ -17,6 +17,19 @@
 	display: inline-block;
 }
 
+.log-container{
+	min-height: 400px;
+	max-height: 400px;
+}
+
+.log-time{
+	width: 25% !important;
+}
+
+.log-msg{
+	width: 75% !important;
+}
+
 footer{
 	margin-top : 5%;
 }

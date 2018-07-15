@@ -2,6 +2,91 @@
 
     <main role="main" class="container">
 
+    	<div class="card card-gallery">
+		  <div class="card-header text-center">
+		  	<ul class="nav nav-tabs card-header-tabs">
+			    <li class="nav-item">
+		        	<a class="nav-link active" data-toggle="tab" href="#global">Global</a>
+	        	</li>
+	        	<li class="nav-item">
+		        	<a class="nav-link" data-toggle="tab" href="#error">Erreurs</a>
+	        	</li>
+	        	<li class="nav-item">
+		        	<a class="nav-link" data-toggle="tab" href="#chart">Graphique</a>
+	        	</li>
+	        	<li class="nav-item">
+		        	<a class="nav-link" data-toggle="tab" href="#mail">Mail</a>
+			    </li>
+			</ul>
+		  </div>
+		  <div class="tab-content card-body text-center log-container">
+		  	  <div id="global" class="tab-pane active">
+		  	  	<ul class="list-group d-flex flex-row flex-wrap">
+			    <% for(msg of logs.global){ %>
+			    	<% if(msg.level == 'error'){ %>
+			    		<li class="list-group-item list-group-item-danger border p-2 log-time"><%= msg.timestamp %></li>
+			    		<li class="list-group-item list-group-item-danger border p-2 log-msg text-left"><%= msg.message %></li>
+		    		<% }else if(msg.level == 'warning'){ %>
+		    			<li class="list-group-item list-group-item-warning border p-2 log-time"><%= msg.timestamp %></li>
+		    			<li class="list-group-item list-group-item-warning border p-2 log-msg text-left"><%= msg.message %></li>
+	    			<% }else { %>
+	    				<li class="list-group-item border p-2 log-time"><%= msg.timestamp %></li>
+	    				<li class="list-group-item border p-2 log-msg text-left"><%= msg.message %></li>
+	    			<% } %>
+			    <% } %>
+			    </ul>
+		      </div>
+		      <div id="error" class="tab-pane">
+		  	  	<ul class="list-group">
+			    <% for(msg of logs.error){ %>
+			    	<% if(msg.level == 'error'){ %>
+			    		<li class="list-group-item list-group-item-danger border p-2 log-time"><%= msg.timestamp %></li>
+			    		<li class="list-group-item list-group-item-danger border p-2 log-msg text-left"><%= msg.message %></li>
+		    		<% }else if(msg.level == 'warning'){ %>
+		    			<li class="list-group-item list-group-item-warning border p-2 log-time"><%= msg.timestamp %></li>
+		    			<li class="list-group-item list-group-item-warning border p-2 log-msg text-left"><%= msg.message %></li>
+	    			<% }else { %>
+	    				<li class="list-group-item border p-2 log-time"><%= msg.timestamp %></li>
+	    				<li class="list-group-item border p-2 log-msg text-left"><%= msg.message %></li>
+	    			<% } %>
+			    <% } %>
+			    </ul>
+		      </div>
+		      <div id="chart" class="tab-pane">
+		  	  	<ul class="list-group">
+			    <% for(msg of logs.chart){ %>
+			    	<% if(msg.level == 'error'){ %>
+			    		<li class="list-group-item list-group-item-danger border p-2 log-time"><%= msg.timestamp %></li>
+			    		<li class="list-group-item list-group-item-danger border p-2 log-msg text-left"><%= msg.message %></li>
+		    		<% }else if(msg.level == 'warning'){ %>
+		    			<li class="list-group-item list-group-item-warning border p-2 log-time"><%= msg.timestamp %></li>
+		    			<li class="list-group-item list-group-item-warning border p-2 log-msg text-left"><%= msg.message %></li>
+	    			<% }else { %>
+	    				<li class="list-group-item border p-2 log-time"><%= msg.timestamp %></li>
+	    				<li class="list-group-item border p-2 log-msg text-left"><%= msg.message %></li>
+	    			<% } %>
+			    <% } %>
+			    </ul>
+		      </div>
+		      <div id="mail" class="tab-pane">
+		  	  	<ul class="list-group">
+			    <% for(msg of logs.mail){ %>
+			    	<% if(msg.level == 'error'){ %>
+			    		<li class="list-group-item list-group-item-danger border p-2 log-time"><%= msg.timestamp %></li>
+			    		<li class="list-group-item list-group-item-danger border p-2 log-msg text-left"><%= msg.message %></li>
+		    		<% }else if(msg.level == 'warning'){ %>
+		    			<li class="list-group-item list-group-item-warning border p-2 log-time"><%= msg.timestamp %></li>
+		    			<li class="list-group-item list-group-item-warning border p-2 log-msg text-left"><%= msg.message %></li>
+	    			<% }else { %>
+	    				<li class="list-group-item border p-2 log-time"><%= msg.timestamp %></li>
+	    				<li class="list-group-item border p-2 log-msg text-left"><%= msg.message %></li>
+	    			<% } %>
+			    <% } %>
+			    </ul>
+		      </div>
+		  </div>
+	    </div>
+	    
     </main>
 
 <%= include('footer') %>

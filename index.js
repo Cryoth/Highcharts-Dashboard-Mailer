@@ -25,7 +25,7 @@ if(env == 'development'){
 	log.info('===============  MODE DEVELOPMENT  ===============\n');
 
 	// Lancement du serveur web
-	// server.launch(config);
+	server.launch(config);
 
 	//Verifie la présence de tous les dossiers tmp
 	verify.dossiers(config);
@@ -52,6 +52,8 @@ if(env == 'production'){
 	verify.internet();
 	verify.serveurs(config.CheckAnywhere);
 	verify.serveurs(config.CipAnywhere);
+
+
 }
 
 // Lance la tâche cron pour les lundi à 3h du matin
