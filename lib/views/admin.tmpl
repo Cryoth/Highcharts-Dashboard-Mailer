@@ -37,7 +37,7 @@
 			    </ul>
 		      </div>
 		      <div id="error" class="tab-pane">
-		  	  	<ul class="list-group">
+		  	  	<ul class="list-group d-flex flex-row flex-wrap">
 			    <% for(msg of logs.error){ %>
 			    	<% if(msg.level == 'error'){ %>
 			    		<li class="list-group-item list-group-item-danger border p-2 log-time"><%= msg.timestamp %></li>
@@ -53,7 +53,7 @@
 			    </ul>
 		      </div>
 		      <div id="chart" class="tab-pane">
-		  	  	<ul class="list-group">
+		  	  	<ul class="list-group d-flex flex-row flex-wrap">
 			    <% for(msg of logs.chart){ %>
 			    	<% if(msg.level == 'error'){ %>
 			    		<li class="list-group-item list-group-item-danger border p-2 log-time"><%= msg.timestamp %></li>
@@ -69,7 +69,7 @@
 			    </ul>
 		      </div>
 		      <div id="mail" class="tab-pane">
-		  	  	<ul class="list-group">
+		  	  	<ul class="list-group d-flex flex-row flex-wrap">
 			    <% for(msg of logs.mail){ %>
 			    	<% if(msg.level == 'error'){ %>
 			    		<li class="list-group-item list-group-item-danger border p-2 log-time"><%= msg.timestamp %></li>
@@ -86,7 +86,7 @@
 		      </div>
 		  </div>
 	    </div>
-	    
+
     </main>
 
 <%= include('footer') %>
