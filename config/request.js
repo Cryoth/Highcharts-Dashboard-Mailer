@@ -202,6 +202,24 @@ module.exports = {
 
 		},
 
+		getListDestinataireManual: function(params){
+			
+			return new Promise(function(resolve, reject){
+				database = db(params);
+				database.query("SELECT idClient, login, email FROM iaaservices_clients WHERE subscriptionValidateDashboard = 1 AND email <> ''", function(err, result) {
+			      if (err) {
+			      	log.error(err);
+			      	return reject(err);
+			      }else{
+			      	resolve(result);
+			      }
+			    });
+
+			    database.end();
+			});
+
+		},
+
 		getChartsToSend: function(params){
 
 			return new Promise(function(resolve, reject){
