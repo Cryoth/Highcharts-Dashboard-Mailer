@@ -36,9 +36,6 @@ if(env == 'development'){
 	verify.serveurs(config.CheckAnywhere);
 	verify.serveurs(config.CipAnywhere);
 
-	log.info("Check Anywhere : Lancement de la génération des graphiques ...");
-	eachCheck(0);
-
 }
 
 if(env == 'production'){
