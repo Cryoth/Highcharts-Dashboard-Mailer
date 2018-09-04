@@ -36,6 +36,9 @@ if(env == 'development'){
 	verify.serveurs(config.CheckAnywhere);
 	verify.serveurs(config.CipAnywhere);
 
+	log.info("Check Anywhere : Lancement de la génération des graphiques ...");
+	eachCheck(0);
+
 }
 
 if(env == 'production'){
@@ -66,9 +69,6 @@ new CronJob('00 00 03 * * 1', function() {
 
 	verify.internet();
 	verify.serveurs(config.CipAnywhere);
-
-	log.info("CIP Anywhere : Lancement de la génération des graphiques ...");
-	eachCip(0);
 
 }, null, true, 'Europe/Paris');
 

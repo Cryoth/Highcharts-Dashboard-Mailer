@@ -46,7 +46,7 @@ module.exports = {
 
 			return new Promise(function(resolve, reject){
 				database = db(params);
-				database.query('SELECT DISTINCT(`idModele`) AS Id, Nom FROM `Modele` INNER JOIN Client_Modele ON Modele.id = Client_Modele.idModele INNER JOIN Client ON Client_Modele.idClient = Client.id WHERE Client_Modele.Actif = 1 AND Client.id = ?', [idClient], function(err, result) {
+				database.query('SELECT DISTINCT(`idModele`) AS Id, Nom FROM `Modele` INNER JOIN Client_Modele ON Modele.id = Client_Modele.idModele INNER JOIN Client ON Client_Modele.idClient = Client.id WHERE Client_Modele.Actif = 1 AND Client.id = ? ORDER BY Client_Modele.Place', [idClient], function(err, result) {
 			      if (err) {
 			      	log.error(err);
 			      	return reject(err);
