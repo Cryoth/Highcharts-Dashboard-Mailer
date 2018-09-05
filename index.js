@@ -34,7 +34,7 @@ if(env == 'development'){
 
 	verify.internet();
 	verify.serveurs(config.CheckAnywhere);
-	verify.serveurs(config.CipAnywhere);
+	//verify.serveurs(config.CipAnywhere);
 
 	log.info("Check Anywhere : Lancement de la génération des graphiques ...");
 	eachCheck(0);

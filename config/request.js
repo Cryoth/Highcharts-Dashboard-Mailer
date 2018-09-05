@@ -102,7 +102,7 @@ module.exports = {
 								  + "(SELECT Date, Commentaire FROM Commentaire WHERE id_Identificateur = ? ORDER BY Date) comment";
 							parameters = [dateStart, dateEnd, data, dateStart, dateEnd, data, idSerie];
 						}else{
-							query = "SELECT data.Valeur AS Valeur, data.Date AS Date, IF(data.Date = comment.Date, comment.Commentaire, '') AS commentaire "
+							query = "SELECT DISTINCT(data.Valeur) AS Valeur, data.Date AS Date, IF(data.Date = comment.Date, comment.Commentaire, '') AS commentaire "
 								  + "FROM "
 			                      + "(SELECT Valeur, Date FROM Valeur WHERE Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id = ? ORDER BY Date) data, "
 			                      + "(SELECT Date, Commentaire FROM Commentaire WHERE id_Identificateur = ? ORDER BY Date) comment";
