@@ -42,9 +42,6 @@ if(env == 'development'){
 
 	log.info("Check Anywhere : Lancement de la génération des graphiques ...");
 	eachCheck(0);
-	log.info("Cip Anywhere : Lancement de la génération des graphiques ...");
-	eachCip(0);
-
 
 }
 
