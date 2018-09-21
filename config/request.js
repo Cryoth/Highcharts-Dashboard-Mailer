@@ -59,6 +59,8 @@ module.exports = {
 			    });
 
 			    database.end();
+			}).catch(function(err){
+				console.log(err);
 			});
 
 		},
