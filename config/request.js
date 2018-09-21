@@ -53,7 +53,7 @@ module.exports = {
 			      }else{
 			      	array = result.map(function(obj){
 						return obj.Id;
-					})
+					});
 			      	resolve(array);
 			      }
 			    });
@@ -97,15 +97,16 @@ module.exports = {
 						if(frequence == 1){
 							query = "SELECT (data.val / freq.val) AS Valeur, data.Date AS Date, IF(data.Date = comment.Date, comment.Commentaire, '') AS commentaire "
 								  + "FROM "
-								  + "(SELECT Valeur AS val, Date FROM Valeur WHERE Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id = ? ORDER BY Date) data, "
-								  + "(SELECT SUM(Valeur) AS val FROM Valeur, Donnees WHERE Donnees.id = Valeur.Donnees_id AND Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id IN (SELECT id FROM Donnees WHERE id IN (SELECT idDenominateur FROM Donnee_Liaison WHERE idNominateur = ?)) GROUP BY Date ORDER BY Date) freq ,"
-								  + "(SELECT Date, Commentaire FROM Commentaire WHERE id_Identificateur = ? ORDER BY Date) comment";
+								  + "(SELECT Valeur AS val, Date FROM Valeur WHERE Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id IN (?) GROUP BY Date ORDER BY Date) data, "
+								  + "(SELECT Date, SUM(Valeur) AS val FROM Valeur, Donnees WHERE Donnees.id = Valeur.Donnees_id AND Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id IN (SELECT id FROM Donnees WHERE id IN (SELECT idDenominateur FROM Donnee_Liaison WHERE idNominateur IN (?))) GROUP BY Date ORDER BY Date) freq ,"
+								  + "(SELECT Date, Commentaire FROM Commentaire WHERE id_Identificateur = ? GROUP BY Date ORDER BY Date) comment "
+								  +	"WHERE data.Date = freq.Date GROUP BY Date";
 							parameters = [dateStart, dateEnd, data, dateStart, dateEnd, data, idSerie];
 						}else{
 							query = "SELECT DISTINCT(data.Valeur) AS Valeur, data.Date AS Date, IF(data.Date = comment.Date, comment.Commentaire, '') AS commentaire "
 								  + "FROM "
-			                      + "(SELECT Valeur, Date FROM Valeur WHERE Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id = ? ORDER BY Date) data, "
-			                      + "(SELECT Date, Commentaire FROM Commentaire WHERE id_Identificateur = ? ORDER BY Date) comment";
+			                      + "(SELECT Valeur, Date FROM Valeur WHERE Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id IN (?) GROUP BY Date ORDER BY Date) data, "
+			                      + "(SELECT Date, Commentaire FROM Commentaire WHERE id_Identificateur = ? GROUP BY Date ORDER BY Date) comment GROUP BY Date";
 			                parameters = [dateStart, dateEnd, data, idSerie];
 						}
 						
@@ -117,11 +118,27 @@ module.exports = {
 							if(typeof result !== 'undefined' && result){
 
 								arrayData = result.map(function(obj){
-									return obj.Valeur;
-								})
+									if(obj.Valeur < 0){
+										if(obj.commentaire != ""){
+											return {y: 0, color: 'white', borderColor: "black"};
+										}else{
+											return 0;
+										}
+									}else{
+										if(obj.commentaire != ""){
+											return {y: Math.round(obj.Valeur * 100) / 100, color: 'white', borderColor: "black"};
+										}else{
+											return Math.round(obj.Valeur * 100) / 100;
+										}
+									}
+								});
 
 								arrayComment = result.map(function(obj){
-									return {date: obj.Date, text: obj.commentaire, valeur: obj.Valeur};
+									if(obj.Valeur < 0){
+										return {date: obj.Date, text: obj.commentaire, valeur: 0};
+									}else{
+										return {date: obj.Date, text: obj.commentaire, valeur: obj.Valeur};
+									}
 								});
 							}
 
@@ -144,11 +161,12 @@ module.exports = {
 						if(frequence == 1){
 							query = "SELECT (data.val / freq.val) AS Valeur "
 								  + "FROM "
-								  + "(SELECT Valeur AS val FROM Valeur WHERE Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id = ? ORDER BY Date) data, "
-								  + "(SELECT SUM(Valeur) AS val FROM Valeur, Donnees WHERE Donnees.id = Valeur.Donnees_id AND Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id IN (SELECT id FROM Donnees WHERE id IN (SELECT idDenominateur FROM Donnee_Liaison WHERE idNominateur = ?)) GROUP BY Date ORDER BY Date) freq";
+								  + "(SELECT Date, SUM(Valeur) AS val FROM Valeur WHERE Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id IN (?) GROUP BY Date ORDER BY Date) data, "
+								  + "(SELECT Date, SUM(Valeur) AS val FROM Valeur, Donnees WHERE Donnees.id = Valeur.Donnees_id AND Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id IN (SELECT id FROM Donnees WHERE id IN (SELECT idDenominateur FROM Donnee_Liaison WHERE idNominateur IN (?))) GROUP BY Date ORDER BY Date) freq "
+								  +	"WHERE data.Date = freq.Date";
 							parameters = [dateStart, dateEnd, data, dateStart, dateEnd, data];
 						}else{
-							query = "SELECT Valeur FROM Valeur WHERE Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id = ? ORDER BY Date";
+							query = "SELECT SUM(Valeur) AS Valeur FROM Valeur WHERE Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id IN (?) GROUP BY Date ORDER BY Date";
 			                parameters = [dateStart, dateEnd, data];
 						}
 						
@@ -158,7 +176,11 @@ module.exports = {
 
 							if(typeof result !== 'undefined' && result){
 								arrayData = result.map(function(obj){
-									return obj.Valeur;
+									if(obj.Valeur < 0){
+										return 0;
+									}else{
+										return (Math.round(obj.Valeur * 100) / 100);	
+									}
 								})
 							}
 
@@ -275,11 +297,11 @@ module.exports = {
 
 					if(typeof result !== 'undefined' && result){
 						arrayData = result.map(function(obj){
-							return obj.valeur;
+							return (Math.round(obj.Valeur * 100) / 100);
 						});
 
 						arrayComment = result.map(function(obj){
-							return {date: obj.date_debut_semaine, text: obj.commentaire, valeur: obj.valeur};
+							return {date: obj.date_debut_semaine, text: obj.commentaire, valeur: (Math.round(obj.Valeur * 100) / 100)};
 						});
 					}
 

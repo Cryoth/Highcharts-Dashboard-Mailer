@@ -1,5 +1,9 @@
 // Défini l'environnement selon que la variable d'environnement NODE_ENV soit défini ou non
 // Doit être égal à 'production' pour ne pas être en développement
+if(process.env.NODE_ENV && process.env.NODE_ENV != "production"){
+	process.env.NODE_ENV = "production";
+}
+
 const env = process.env.NODE_ENV || 'development';
 
 // Récupère les identifiants serveurs depuis config.js
@@ -34,10 +38,13 @@ if(env == 'development'){
 
 	verify.internet();
 	verify.serveurs(config.CheckAnywhere);
-	//verify.serveurs(config.CipAnywhere);
+	verify.serveurs(config.CipAnywhere);
 
 	log.info("Check Anywhere : Lancement de la génération des graphiques ...");
 	eachCheck(0);
+	log.info("Cip Anywhere : Lancement de la génération des graphiques ...");
+	eachCip(0);
+
 
 }
 
