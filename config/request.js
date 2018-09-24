@@ -300,11 +300,11 @@ module.exports = {
 
 					if(typeof result !== 'undefined' && result){
 						arrayData = result.map(function(obj){
-							return (Math.round(obj.Valeur * 100) / 100);
+							return (Math.round(obj.valeur * 100) / 100);
 						});
 
 						arrayComment = result.map(function(obj){
-							return {date: obj.date_debut_semaine, text: obj.commentaire, valeur: (Math.round(obj.Valeur * 100) / 100)};
+							return {date: obj.date_debut_semaine, text: obj.commentaire, valeur: (Math.round(obj.valeur * 100) / 100)};
 						});
 					}
 
