@@ -40,9 +40,6 @@ if(env == 'development'){
 	verify.serveurs(config.CheckAnywhere);
 	verify.serveurs(config.CipAnywhere);
 
-	log.info("Cip Anywhere : Lancement de la génération des graphiques ...");
-	eachCip(0);
-
 }
 
 if(env == 'production'){
@@ -64,7 +61,7 @@ if(env == 'production'){
 }
 
 // Lance la tâche cron pour les lundi à 3h du matin
-new CronJob('00 00 03 * * 1', function() {
+new CronJob('00 00 03 * * 2', function() {
 
 	// Verifie la présence de tous les dossiers tmp
 	verify.dossiers(config);
@@ -74,10 +71,13 @@ new CronJob('00 00 03 * * 1', function() {
 	verify.internet();
 	verify.serveurs(config.CipAnywhere);
 
+	log.info("Check Anywhere : Lancement de la génération des graphiques ...");
+	eachCheck(0);
+
 }, null, true, 'Europe/Paris');
 
 // Lance la tâche cron pour les lundi à 3h30 du matin
-new CronJob('00 30 03 * * 1', function() {
+new CronJob('00 30 03 * * 2', function() {
 
 	// Verifie la présence de tous les dossiers tmp
 	verify.dossiers(config);
@@ -87,24 +87,28 @@ new CronJob('00 30 03 * * 1', function() {
 	verify.internet();
 	verify.serveurs(config.CheckAnywhere);
 
-	log.info("Check Anywhere : Lancement de la génération des graphiques ...");
-	eachCheck(0);
+	log.info("Cip Anywhere : Lancement de la génération des graphiques ...");
+	eachCip(0);
 
 }, null, true, 'Europe/Paris');
 
 function eachCip(x){
     chartProvider.cipanywhere(config.CipAnywhere[x]).then(function(){
-    	if( x < config.CipAnywhere.length - 1 ) {
-    		eachCip(x+1);
-    	}
+    	setTimeout(function () {
+	    	if( x < config.CipAnywhere.length - 1 ) {
+	    		eachCip(x+1);
+	    	}
+	    }, 360000);
     	
     });
 };
 
 function eachCheck(x){
     chartProvider.checkanywhere(config.CheckAnywhere[x]).then(function(){
-    	if( x < config.CheckAnywhere.length - 1 ) {
-    		eachCheck(x+1);
-    	}
+    	setTimeout(function () {
+	    	if( x < config.CheckAnywhere.length - 1 ) {
+	    		eachCheck(x+1);
+	    	}
+    	}, 360000);
     })
 };
