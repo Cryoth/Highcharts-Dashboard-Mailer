@@ -10,10 +10,10 @@ module.exports = {
 			
 			return new Promise(function(resolve, reject){
 				database = db(params);
-				database.query("SELECT id, Login, Email FROM Client WHERE SendDashboard = 1 AND Email <> '' ", function(err, result) {
+				database.query("SELECT DISTINCT(id) AS id, Login, Email FROM Client, Client_Modele WHERE SendDashboard = 1 AND Email <> '' AND Client_Modele.idClient = Client.id AND Client_Modele.Actif = 1", function(err, result) {
 			      if (err){
 			      	log.error(err);
-			      	return reject(err);
+			      	reject(err);
 			      }else{
 			      	resolve(result);
 			      }
@@ -31,7 +31,7 @@ module.exports = {
 				database.query('SELECT DISTINCT(`idModele`) AS Id, Nom, FormeGraph, Periode  FROM `Modele` INNER JOIN Client_Modele ON Modele.id = Client_Modele.idModele INNER JOIN Client ON Client_Modele.idClient = Client.id WHERE SendDashboard = 1', function(err, result) {
 			      if (err) {
 			      	log.error(err);
-			      	return reject(err);
+			      	reject(err);
 			      }else{
 			      	resolve(result);
 			      }
@@ -46,21 +46,22 @@ module.exports = {
 
 			return new Promise(function(resolve, reject){
 				database = db(params);
-				database.query('SELECT DISTINCT(`idModele`) AS Id, Nom FROM `Modele` INNER JOIN Client_Modele ON Modele.id = Client_Modele.idModele INNER JOIN Client ON Client_Modele.idClient = Client.id WHERE Client_Modele.Actif = 1 AND Client.id = ? ORDER BY Client_Modele.Place', [idClient], function(err, result) {
+				database.query('SELECT DISTINCT(`idModele`) AS Id, Nom FROM `Modele` INNER JOIN Client_Modele ON Modele.id = Client_Modele.idModele INNER JOIN Client ON Client_Modele.idClient = Client.id WHERE Client_Modele.Actif = 1 AND Client.id = ? AND Client.SendDashboard = 1 ORDER BY Client_Modele.Place', [idClient], function(err, result) {
 			      if (err) {
 			      	log.error(err);
-			      	return reject(err);
+			      	reject(err);
 			      }else{
-			      	array = result.map(function(obj){
-						return obj.Id;
-					});
-			      	resolve(array);
+			      	if(typeof result !== 'undefined' && result && Object.keys(result).length > 0){
+			      		array = result.map(function(obj){
+							return obj.Id;
+						});
+				      	resolve(array);
+			      	}else{
+			      		resolve(null);
+			      	}
 			      }
 			    });
 
-			    database.end();
-			}).catch(function(err){
-				console.log(err);
 			});
 
 		},
