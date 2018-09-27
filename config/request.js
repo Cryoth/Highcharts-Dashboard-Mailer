@@ -84,33 +84,53 @@ module.exports = {
 
 		},
 
-		getSeriesData: function(params, monetaire, frequence, periode, data, idSerie){
+		getSeriesData: function(params, monetaire, frequence, periode, data, idSerie, cumul){
 
 			return new Promise(function(resolve, reject){
 				database = db(params);
 
 				var dateStart = moment().startOf('isoweek').subtract(periode, 'week').format("YYYY-MM-DD"),
-					dateEnd = moment().format("YYYY-MM-DD"),
+					dateEnd = moment().startOf('isoweek').format("YYYY-MM-DD"),
 					query = "",
 					parameters = [];
 
 				database.query("SELECT IF(EXISTS(SELECT Commentaire FROM Commentaire WHERE id_Identificateur = ?), 1, 0) AS value", [idSerie], function(err, exist, fields){
 					if(exist[0].value == 1){
 
-						if(frequence == 1){
-							query = "SELECT (data.val / freq.val) AS Valeur, data.Date AS Date, IF(data.Date = comment.Date, comment.Commentaire, '') AS commentaire "
-								  + "FROM "
-								  + "(SELECT Valeur AS val, Date FROM Valeur WHERE Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id IN (?) GROUP BY Date ORDER BY Date) data, "
-								  + "(SELECT Date, SUM(Valeur) AS val FROM Valeur, Donnees WHERE Donnees.id = Valeur.Donnees_id AND Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id IN (SELECT id FROM Donnees WHERE id IN (SELECT idDenominateur FROM Donnee_Liaison WHERE idNominateur IN (?))) GROUP BY Date ORDER BY Date) freq ,"
-								  + "(SELECT Date, Commentaire FROM Commentaire WHERE id_Identificateur = ? GROUP BY Date ORDER BY Date) comment "
-								  +	"WHERE data.Date = freq.Date GROUP BY Date";
-							parameters = [dateStart, dateEnd, data, dateStart, dateEnd, data, idSerie];
+						if(cumul == null){
+							if(frequence == 1){
+								query = "SELECT (data.val / freq.val) AS Valeur, data.Date AS Date, IF(data.Date = comment.Date, comment.Commentaire, '') AS commentaire "
+									  + "FROM "
+									  + "(SELECT Valeur AS val, Date FROM Valeur WHERE Date >= ? AND Date < ? AND Periodicite = 2 AND Donnees_id IN (?) GROUP BY Date ORDER BY Date) data, "
+									  + "(SELECT Date, SUM(Valeur) AS val FROM Valeur, Donnees WHERE Donnees.id = Valeur.Donnees_id AND Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id IN (SELECT id FROM Donnees WHERE id IN (SELECT idDenominateur FROM Donnee_Liaison WHERE idNominateur IN (?))) GROUP BY Date ORDER BY Date) freq ,"
+									  + "(SELECT Date, Commentaire FROM Commentaire WHERE id_Identificateur = ? GROUP BY Date ORDER BY Date) comment "
+									  +	"WHERE data.Date = freq.Date GROUP BY Date";
+								parameters = [dateStart, dateEnd, data, dateStart, dateEnd, data, idSerie];
+							}else{
+								query = "SELECT DISTINCT(data.Valeur) AS Valeur, data.Date AS Date, IF(data.Date = comment.Date, comment.Commentaire, '') AS commentaire "
+									  + "FROM "
+				                      + "(SELECT Valeur, Date FROM Valeur WHERE Date >= ? AND Date < ? AND Periodicite = 2 AND Donnees_id IN (?) GROUP BY Date ORDER BY Date) data, "
+				                      + "(SELECT Date, Commentaire FROM Commentaire WHERE id_Identificateur = ? GROUP BY Date ORDER BY Date) comment "
+				                      + "GROUP BY Date";
+				                parameters = [dateStart, dateEnd, data, idSerie];
+							}
 						}else{
-							query = "SELECT DISTINCT(data.Valeur) AS Valeur, data.Date AS Date, IF(data.Date = comment.Date, comment.Commentaire, '') AS commentaire "
-								  + "FROM "
-			                      + "(SELECT Valeur, Date FROM Valeur WHERE Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id IN (?) GROUP BY Date ORDER BY Date) data, "
-			                      + "(SELECT Date, Commentaire FROM Commentaire WHERE id_Identificateur = ? GROUP BY Date ORDER BY Date) comment GROUP BY Date";
-			                parameters = [dateStart, dateEnd, data, idSerie];
+							if(frequence == 1){
+								query = "SELECT (data.val / freq.val) AS Valeur, data.Date AS Date, IF(data.Date = comment.Date, comment.Commentaire, '') AS commentaire "
+									  + "FROM "
+									  + "(SELECT Valeur AS val, Date FROM Valeur WHERE Date >= ? AND Date < ? AND Periodicite = 2 AND Donnees_id IN (SELECT id FROM Donnees WHERE Nom = (SELECT Nom FROM Donnees WHERE id = ?) AND Application = ?) GROUP BY Date ORDER BY Date) data, "
+									  + "(SELECT Date, SUM(Valeur) AS val FROM Valeur, Donnees WHERE Donnees.id = Valeur.Donnees_id AND Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id IN (SELECT id FROM Donnees WHERE id IN (SELECT idDenominateur FROM Donnee_Liaison WHERE idNominateur IN (?))) GROUP BY Date ORDER BY Date) freq ,"
+									  + "(SELECT Date, Commentaire FROM Commentaire WHERE id_Identificateur = ? GROUP BY Date ORDER BY Date) comment "
+									  +	"WHERE data.Date = freq.Date GROUP BY Date";
+								parameters = [dateStart, dateEnd, data, cumul, dateStart, dateEnd, data, idSerie];
+							}else{
+								query = "SELECT DISTINCT(data.Valeur) AS Valeur, data.Date AS Date, IF(data.Date = comment.Date, comment.Commentaire, '') AS commentaire "
+									  + "FROM "
+				                      + "(SELECT Valeur, Date FROM Valeur WHERE Date >= ? AND Date < ? AND Periodicite = 2 AND Donnees_id IN (SELECT id FROM Donnees WHERE Nom = (SELECT Nom FROM Donnees WHERE id = ?) AND Application = ?) GROUP BY Date ORDER BY Date) data, "
+				                      + "(SELECT Date, Commentaire FROM Commentaire WHERE id_Identificateur = ? GROUP BY Date ORDER BY Date) comment "
+				                      + "GROUP BY Date";
+				                parameters = [dateStart, dateEnd, data, cumul, idSerie];
+							}
 						}
 						
 						database.query(query, parameters, function(err, result, fields){
@@ -161,16 +181,30 @@ module.exports = {
 
 					}else{
 
-						if(frequence == 1){
-							query = "SELECT (data.val / freq.val) AS Valeur "
-								  + "FROM "
-								  + "(SELECT Date, SUM(Valeur) AS val FROM Valeur WHERE Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id IN (?) GROUP BY Date ORDER BY Date) data, "
-								  + "(SELECT Date, SUM(Valeur) AS val FROM Valeur, Donnees WHERE Donnees.id = Valeur.Donnees_id AND Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id IN (SELECT id FROM Donnees WHERE id IN (SELECT idDenominateur FROM Donnee_Liaison WHERE idNominateur IN (?))) GROUP BY Date ORDER BY Date) freq "
-								  +	"WHERE data.Date = freq.Date";
-							parameters = [dateStart, dateEnd, data, dateStart, dateEnd, data];
+						if(cumul == null){
+							if(frequence == 1){
+								query = "SELECT (data.val / freq.val) AS Valeur, data.Date AS Date "
+									  + "FROM "
+									  + "(SELECT Date, SUM(Valeur) AS val FROM Valeur WHERE Date >= ? AND Date < ? AND Periodicite = 2 AND Donnees_id IN (?) GROUP BY Date ORDER BY Date) data, "
+									  + "(SELECT Date, SUM(Valeur) AS val FROM Valeur, Donnees WHERE Donnees.id = Valeur.Donnees_id AND Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id IN (SELECT id FROM Donnees WHERE id IN (SELECT idDenominateur FROM Donnee_Liaison WHERE idNominateur IN (?))) GROUP BY Date ORDER BY Date) freq "
+									  +	"WHERE data.Date = freq.Date GROUP BY Date";
+								parameters = [dateStart, dateEnd, data, dateStart, dateEnd, data];
+							}else{
+								query = "SELECT SUM(Valeur) AS Valeur, Date FROM Valeur WHERE Date >= ? AND Date < ? AND Periodicite = 2 AND Donnees_id IN (?) GROUP BY Date ORDER BY Date";
+				                parameters = [dateStart, dateEnd, data];
+							}
 						}else{
-							query = "SELECT SUM(Valeur) AS Valeur FROM Valeur WHERE Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id IN (?) GROUP BY Date ORDER BY Date";
-			                parameters = [dateStart, dateEnd, data];
+							if(frequence == 1){
+								query = "SELECT (data.val / freq.val) AS Valeur, data.Date AS Date "
+									  + "FROM "
+									  + "(SELECT Date, SUM(Valeur) AS val FROM Valeur WHERE Date >= ? AND Date < ? AND Periodicite = 2 AND Donnees_id IN (SELECT id FROM Donnees WHERE Nom = (SELECT Nom FROM Donnees WHERE id = ?) AND Application = ?) GROUP BY Date ORDER BY Date) data, "
+									  + "(SELECT Date, SUM(Valeur) AS val FROM Valeur, Donnees WHERE Donnees.id = Valeur.Donnees_id AND Date >= ? AND Date <= ? AND Periodicite = 2 AND Donnees_id IN (SELECT id FROM Donnees WHERE id IN (SELECT idDenominateur FROM Donnee_Liaison WHERE idNominateur IN (?))) GROUP BY Date ORDER BY Date) freq "
+									  +	"WHERE data.Date = freq.Date GROUP BY Date";
+								parameters = [dateStart, dateEnd, data, cumul, dateStart, dateEnd, data];
+							}else{
+								query = "SELECT SUM(Valeur) AS Valeur, Date FROM Valeur WHERE Date >= ? AND Date < ? AND Periodicite = 2 AND Donnees_id IN (SELECT id FROM Donnees WHERE Nom = (SELECT Nom FROM Donnees WHERE id = ?) AND Application = ?) GROUP BY Date ORDER BY Date";
+				                parameters = [dateStart, dateEnd, data, cumul];
+							}
 						}
 						
 						database.query(query, parameters, function(err, result, fields){
@@ -188,7 +222,7 @@ module.exports = {
 							}
 
 							if(arrayData.length < periode){
-								arrayData = new Array((periode - arrayData.length) + 1).join('0').split('').map(parseFloat).concat(arrayData);
+								arrayData = new Array(periode - arrayData.length - 1).join('0').split('').map(parseFloat).concat(arrayData);
 							}
 
 							if (err){
@@ -300,7 +334,12 @@ module.exports = {
 
 					if(typeof result !== 'undefined' && result){
 						arrayData = result.map(function(obj){
-							return (Math.round(obj.valeur * 100) / 100);
+							if(obj.commentaire == ''){
+								return (Math.round(obj.valeur * 100) / 100);
+							}else{
+								return {y: (Math.round(obj.valeur * 100) / 100), color: 'white', borderColor: "black"};
+								console.log("comm");
+							}
 						});
 
 						arrayComment = result.map(function(obj){

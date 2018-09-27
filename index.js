@@ -61,7 +61,7 @@ if(env == 'production'){
 }
 
 // Lance la tâche cron pour les lundi à 3h du matin
-new CronJob('00 00 03 * * 2', function() {
+new CronJob('00 00 03 * * 1', function() {
 
 	// Verifie la présence de tous les dossiers tmp
 	verify.dossiers(config);
@@ -77,7 +77,7 @@ new CronJob('00 00 03 * * 2', function() {
 }, null, true, 'Europe/Paris');
 
 // Lance la tâche cron pour les lundi à 3h30 du matin
-new CronJob('00 30 03 * * 2', function() {
+new CronJob('00 00 04 * * 1', function() {
 
 	// Verifie la présence de tous les dossiers tmp
 	verify.dossiers(config);
